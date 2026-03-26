@@ -94,16 +94,16 @@ def plot(stars, label_stars = None, cluster_name = None, LOP = "south",
     stars_l, stars_b = stars.galactic.l.degree, stars.galactic.b.degree
     stars_l = np.atleast_1d(stars_l)
     stars_b = np.atleast_1d(stars_b)
-        
-    star_coords = np.column_stack((stars_l, stars_b))
-    is_inside = footprint_path.contains_points(star_coords)
+    
+    # Get the stars which are inside the LOP
+    is_inside_lop = footprint_path.contains_points(np.column_stack((stars_l, stars_b)))
     
     # Stars inside the LOP
-    plt.plot(stars_l[is_inside], stars_b[is_inside], "*", color = "gold", 
+    plt.plot(stars_l[is_inside_lop], stars_b[is_inside_lop], "*", color = "gold", 
              markersize = 15, markeredgecolor = "black")
 
     # Stars outside the LOP
-    plt.plot(stars_l[~is_inside], stars_b[~is_inside], "*", color = "lightgray", 
+    plt.plot(stars_l[~is_inside_lop], stars_b[~is_inside_lop], "*", color = "lightgray", 
              markersize = 5, alpha =0.5)
     
     # Now to insert the the name of the star(s).
@@ -111,16 +111,16 @@ def plot(stars, label_stars = None, cluster_name = None, LOP = "south",
         labels = np.atleast_1d(label_stars)
         
         if cluster_name != None:
-            if np.any(is_inside):
-                avg_l = np.mean(stars_l[is_inside])
-                avg_b = np.mean(stars_b[is_inside])
+            if np.any(is_inside_lop):
+                avg_l = np.mean(stars_l[is_inside_lop])
+                avg_b = np.mean(stars_b[is_inside_lop])
                 plt.text(avg_l - 3.5, avg_b + 1.75, cluster_name, 
                          size = 15)
             else:
                 print(f"Cluster {labels[0]} is entirely outside {LOP_name}")
         else:
             for i in range(len(stars_l)):
-                if is_inside[i]:
+                if is_inside_lop[i]:
                     plt.text(stars_l[i] - 3.5, stars_b[i] + 1.75, labels[i], size = 15)
                 else:
                     label_name = labels[i] if i < len(labels) else labels[0]
@@ -145,9 +145,8 @@ def plot(stars, label_stars = None, cluster_name = None, LOP = "south",
     output_table["Name"] = names_save
     output_table["l"] = stars_l*u.deg
     output_table["b"] = stars_b*u.deg
-    output_table["is_in_lop"] = is_inside
+    output_table["is_in_lop"] = is_inside_lop
     
-    # Print the table to console for a quick check
     print(output_table)
     
     if save_stars != None:
