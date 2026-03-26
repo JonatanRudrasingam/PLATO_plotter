@@ -1,6 +1,4 @@
-An unoffcial tool for viewing stars in the PLATO LOPs.
-
-
+# An unoffcial tool for viewing stars in the PLATO LOPs.
 List of files:
 
 
